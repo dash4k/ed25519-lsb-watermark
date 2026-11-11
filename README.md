@@ -1,24 +1,26 @@
-# ed25519 X LSB Image Watermarking 
+# ed25519 X LSB Image Watermarking
 
-A Python proof of concept that embeds an Ed25519 signature in the least significant bits (LSBs) of a PNG image’s RGB channels, then verifies that signature later.
+A Python proof of concept that signs PNG image data with Ed25519 and embeds the 64-byte signature in the least significant bits (LSBs) of the image’s RGB channels. Signatures can be checked locally or through a small HTTP API.
 
 ## How it works
 
-The project clears the RGB LSBs before signing the image data. It embeds the resulting 64-byte Ed25519 signature into the first 512 RGB channel bits. Verification extracts the signature and checks it against the image data using the public verification key.
+The tool loads each image as RGBA, clears the LSBs of its RGB channels, and signs a payload containing the image dimensions and pixel data. It embeds the resulting 64-byte signature in the first 512 RGB channel bits and saves the result as PNG.
+
+Verification extracts those bits and checks the signature against the image data using the Ed25519 public key. Changing the image’s pixel values or dimensions can invalidate the signature.
 
 ## Requirements
 
 - Python
 - GNU Make
-- The `py` Python launcher used by the Makefile (or adjust the Makefile to use your Python command)
+- The `py` Python launcher used by the Makefile, or update the Makefile to use your Python command
 
-Install the Python dependencies:
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## Local usage
 
 Run these commands from the repository root.
 
@@ -28,7 +30,7 @@ Run these commands from the repository root.
 make config
 ```
 
-This creates the `images/inputs`, `images/outputs`, and `keys` directories.
+This creates the image input/output directories and the `keys` directory.
 
 ### 2. Generate a keypair
 
@@ -36,16 +38,16 @@ This creates the `images/inputs`, `images/outputs`, and `keys` directories.
 make key
 ```
 
-This creates:
+This generates:
 
 - `keys/signing.key`: the private signing key
 - `keys/verify.key`: the public verification key
 
-Keep the signing key private and secure.
+Keep the signing key private and secure. The verification key is used by both the local verifier and HTTP server.
 
 ### 3. Add PNG images
 
-Place the images you want to sign in:
+Place images to sign in:
 
 ```text
 images/inputs/
@@ -53,7 +55,7 @@ images/inputs/
 
 Images must have at least 512 RGB channel values available for the embedded signature.
 
-### 4. Sign and embed
+### 4. Sign images
 
 ```bash
 make sign
@@ -61,13 +63,38 @@ make sign
 
 The script processes PNG files in `images/inputs` and saves signed images to `images/outputs`.
 
-### 5. Verify
+### 5. Verify signed images
 
 ```bash
 make verify
 ```
 
-The verifier checks PNG files in `images/outputs` and reports the number of valid, invalid, and failed checks.
+The verifier checks PNG files in `images/outputs` and reports counts of valid, invalid, and failed checks.
+
+## HTTP verification API
+
+The repository includes a FastAPI app that verifies an uploaded image’s raw bytes using `keys/verify.key`. Generate the keypair first, then start the server:
+
+```bash
+make key
+py -m uvicorn server:app --reload
+```
+
+The app listens on `http://127.0.0.1:8000` by default. Send the image bytes as the request body to `POST /verify`:
+
+```bash
+curl -X POST \
+  --data-binary @images/outputs/example.png \
+  http://127.0.0.1:8000/verify
+```
+
+The response contains a boolean verification result:
+
+```json
+{"result": true}
+```
+
+The API expects the image itself in the request body, not a JSON or multipart upload.
 
 ## Make targets
 
@@ -80,11 +107,11 @@ The verifier checks PNG files in `images/outputs` and reports the number of vali
 | `make clean` | Remove the output directory and generated keys |
 | `make all` | Clean, configure, generate keys, sign, and verify |
 
-**Warning:** `make all` starts by running `make clean`, which deletes `images/outputs` and `keys/`. It then creates a new keypair. Previously signed images will no longer verify with the newly generated verification key.
+**Warning:** `make all` starts by running `make clean`, which deletes `images/outputs` and `keys/`, then generates a new keypair. Previously signed images will not verify against the new keypair.
 
 ## Notes
 
-- Only PNG files are processed.
-- Signing modifies RGB channel LSBs; the output is saved as PNG.
+- Only PNG files are processed by the local signing and verification scripts.
+- The HTTP endpoint verifies image bytes; it does not save or sign uploaded images.
 - Image transformations that change pixel values or dimensions can invalidate the signature.
 - This is a demonstration project, not a complete image-authentication or watermarking product.
