@@ -1,3 +1,4 @@
+import io
 import numpy as np
 from PIL import Image
 from nacl.signing import SigningKey, VerifyKey
@@ -38,6 +39,21 @@ def sign_and_embed(src, dst, signing_key: SigningKey):
 
 def verify_embedded(path, verify_key: VerifyKey) -> bool:
     arr = load_rgba(path)
+    flat = arr[..., :3].reshape(-1)
+    sig = np.packbits(flat[:SIG_BITS] & 1).tobytes()
+    try:
+        verify_key.verify(signed_payload(clear_lsb(arr)), sig)
+        return True
+    except BadSignatureError:
+        return False
+
+
+def load_rgba_from_bytes(data: bytes) -> np.ndarray:
+    return np.array(Image.open(io.BytesIO(data)).convert("RGBA"), dtype=np.uint8)
+
+
+def verify_embedded_from_bytes(data: bytes, verify_key: VerifyKey) -> bool:
+    arr = load_rgba_from_bytes(data)
     flat = arr[..., :3].reshape(-1)
     sig = np.packbits(flat[:SIG_BITS] & 1).tobytes()
     try:
