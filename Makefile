@@ -5,9 +5,10 @@ SHELL := bash
 		config \
 		key \
 		sign \
-		verify
+		verify \
+		benchmark
 
-all: clean config key sign verify
+all: clean config key sign verify benchmark
 
 clean: clean-output clean-keys
 
@@ -28,3 +29,6 @@ sign:
 
 verify:
 	py src/sigVer.py
+
+benchmark:
+	py src/benchmark.py
