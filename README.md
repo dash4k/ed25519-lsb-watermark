@@ -8,6 +8,8 @@ The tool loads each image as RGBA, clears the LSBs of its RGB channels, and sign
 
 Verification extracts those bits and checks the signature against the image data using the Ed25519 public key. Changing the image’s pixel values or dimensions can invalidate the signature.
 
+The benchmark process compares the images in inputs/ and outputs/ to calculate both PSNR and SSIM values.
+
 ## Requirements
 
 - Python
@@ -71,6 +73,14 @@ make verify
 
 The verifier checks PNG files in `images/outputs` and reports counts of valid, invalid, and failed checks.
 
+### 6. The benchmark
+
+```bash
+make benchmark
+```
+
+The benchmarking script compares the PNG files in images/inputs and images/outputs and writes the PSNR and SSIM values for each image to a .csv file.
+
 ## HTTP verification API
 
 The repository includes a FastAPI app that verifies an uploaded image’s raw bytes using `keys/verify.key`. Generate the keypair first, then start the server:
@@ -104,6 +114,7 @@ The API expects the image itself in the request body, not a JSON or multipart up
 | `make key` | Generate a new signing and verification keypair |
 | `make sign` | Sign input PNGs and write results to the output directory |
 | `make verify` | Verify signed PNGs in the output directory |
+| `make benchmark` | Calculates PSNR and SSIM values of each stego media |
 | `make clean` | Remove the output directory and generated keys |
 | `make all` | Clean, configure, generate keys, sign, and verify |
 
