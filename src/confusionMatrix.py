@@ -2,7 +2,7 @@ import csv
 from datetime import datetime
 import re
 from nacl.signing import VerifyKey
-from config import VERIFY_KEY_PATH, IMAGES_LABELED_PATH, IMG_EXTS, CF_OUTPUTS_PATH
+from config import VERIFY_KEY_PATH, IMAGES_LABELED_PATH, IMG_EXTS, CM_OUTPUTS_PATH
 from utils import verify_embedded
 
 with open(VERIFY_KEY_PATH, "rb") as f:
@@ -11,7 +11,7 @@ with open(VERIFY_KEY_PATH, "rb") as f:
 files = IMAGES_LABELED_PATH.glob("*")
 results = {"tp": 0, "fp": 0, "tn": 0, "fn": 0}
 failed = []
-OUTPUT_CSV = CF_OUTPUTS_PATH / f"results_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.csv"
+OUTPUT_CSV = CM_OUTPUTS_PATH / f"results_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.csv"
 
 for path in files:
     if not path.is_file() and path.suffix.lower() not in IMG_EXTS:
