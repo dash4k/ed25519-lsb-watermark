@@ -48,7 +48,6 @@ def evaluate(cover_dir, stego_dir):
             s = ssim(cover, stego, data_range=data_range)
 
         results.append({"filename": filename, "PSNR (dB)": p, "SSIM": s})
-        print(f"{filename}: PSNR = {p:.4f} dB, SSIM = {s:.6f}")
 
     return pd.DataFrame(results)
 
@@ -63,4 +62,4 @@ if __name__ == "__main__":
         print(f"PSNR: {df['PSNR (dB)'].replace(np.inf, np.nan).mean():.4f} dB")
         print(f"SSIM: {df['SSIM'].mean():.6f}")
         df.to_csv(OUTPUT_CSV, index=False)
-        print(f"\nSaved results to {OUTPUT_CSV}")
+        print(f"Saved results to {OUTPUT_CSV}\n")
