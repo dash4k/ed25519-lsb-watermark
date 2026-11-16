@@ -1,22 +1,27 @@
 SHELL := bash
 
 .PHONY: all \
-		clean clean-output clean-keys \
+		clean clean-outputs clean-keys clean-benchmarks \
 		config \
 		key \
 		sign \
 		verify \
-		benchmark
+		benchmark \
+		confusion-matrix \
+		server
 
-all: clean config key sign verify benchmark
+all: clean config key sign verify benchmark confusion-matrix
 
-clean: clean-output clean-keys
+clean: clean-outputs clean-keys
 
-clean-output:
-	rm -rf images/outputs
+clean-outputs:
+	rm -rf images/outputs images/labeled
 
 clean-keys:
 	rm -rf keys/
+
+clean-benchmarks:
+	rm -rf benchmarks/
 
 config:
 	py src/config.py
@@ -32,3 +37,9 @@ verify:
 
 benchmark:
 	py src/benchmark.py
+
+confusion-matrix:
+	py src/confusionMatrix.py
+
+server:
+	py -m uvicorn server:app --port 8000

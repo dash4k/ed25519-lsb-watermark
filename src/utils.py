@@ -1,3 +1,4 @@
+import shutil
 import io
 import numpy as np
 from PIL import Image
@@ -21,7 +22,11 @@ def signed_payload(arr: np.ndarray) -> bytes:
     return b"RGB" + w.to_bytes(4, "big") + h.to_bytes(4, "big") + arr.tobytes()
 
 
-def sign_and_embed(src, dst, signing_key: SigningKey):
+def sign_and_embed(src, output, labeled, signing_key: SigningKey):
+    output_path = output / src.name
+    false_label_path = labeled / ("false_" + src.name)
+    true_label_path = labeled / ("true_" + src.name)
+    
     arr = clear_lsb(load_rgba(src))
     rgb = arr[..., :3]
     if rgb.size < SIG_BITS:
@@ -34,7 +39,9 @@ def sign_and_embed(src, dst, signing_key: SigningKey):
     flat[:SIG_BITS] |= bits
     arr[..., :3] = flat.reshape(rgb.shape)
 
-    Image.fromarray(arr, "RGBA").save(dst, format="PNG")
+    Image.fromarray(arr, "RGBA").save(output_path, format="PNG")
+    shutil.copy2(output_path, true_label_path)
+    shutil.copy2(src, false_label_path)
 
 
 def verify_embedded(path, verify_key: VerifyKey) -> bool:
