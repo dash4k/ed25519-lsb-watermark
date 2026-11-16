@@ -8,7 +8,7 @@ IMAGES_INPUTS_PATH = BASE_DIR / "images" / "inputs"
 IMAGES_OUTPUTS_PATH = BASE_DIR / "images" / "outputs"
 IMAGES_LABELED_PATH = BASE_DIR / "images" / "labeled"
 BENCHMARK_OUTPUTS_PATH = BASE_DIR / "benchmarks" / "quality"
-CF_OUTPUTS_PATH = BASE_DIR / "benchmarks" / "cms"
+CM_OUTPUTS_PATH = BASE_DIR / "benchmarks" / "cms"
 
 SIGNING_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -16,6 +16,6 @@ IMAGES_INPUTS_PATH.mkdir(parents=True, exist_ok=True)
 IMAGES_OUTPUTS_PATH.mkdir(parents=True, exist_ok=True)
 IMAGES_LABELED_PATH.mkdir(parents=True, exist_ok=True)
 BENCHMARK_OUTPUTS_PATH.mkdir(parents=True, exist_ok=True)
-CF_OUTPUTS_PATH.mkdir(parents=True, exist_ok=True)
+CM_OUTPUTS_PATH.mkdir(parents=True, exist_ok=True)
 
 IMG_EXTS = {".png"}
