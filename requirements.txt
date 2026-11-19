@@ -1,8 +1,8 @@
 fastapi==0.162.2
 numpy==2.5.4
+opencv-python==5.0.0.93
+pandas==3.1.1
 pillow==13.0.0
 PyNaCl==1.6.2
-uvicorn==0.54.0
-opencv-python==5.0.0.93
 scikit-image==0.26.0
-pandas==3.1.1
+uvicorn==0.54.0
